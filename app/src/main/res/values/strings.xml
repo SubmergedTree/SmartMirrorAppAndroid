@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">SmartMirror</string>
+    <string name="bluetooth_search_title">Searching SmartMirror.</string>
+    <string name="bluetooth_search">Please activate Bluetooth and pair this phone with your
+    SmartMirror.</string>
+    <string name="menu_change_bt_name">Change Query Name</string>
+    <string name="change_bt_name_title">Change visible Bluetooth name of SmartMirror </string>
+    <string name="change_bt_name_edit">SmartMirror</string>
+    <string name="change_bt_name_button">Apply</string>
+    <string name="placeholder">PLACEHOLDER</string>
+    <string name="logout">Logout</string>
+    <string name="modify_layout">Layout</string>
+    <string name="learning">Learning</string>
+</resources>
