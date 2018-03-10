@@ -20,8 +20,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.SelectUserActivity">
-        </activity>
+        <activity android:name=".view.SelectUserActivity"></activity>
+        <activity
+            android:name=".view.ModifyProfileActivity"
+            android:label="@string/title_activity_modify_profile"></activity>
     </application>
 
 </manifest>

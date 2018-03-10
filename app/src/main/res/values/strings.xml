@@ -11,4 +11,9 @@
     <string name="logout">Logout</string>
     <string name="modify_layout">Layout</string>
     <string name="learning">Learning</string>
+
+    <string name="title_activity_modify_profile">ModifyProfileActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
 </resources>
