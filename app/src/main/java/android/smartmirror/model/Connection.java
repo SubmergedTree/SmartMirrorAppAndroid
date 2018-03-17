@@ -37,6 +37,11 @@ public class Connection {
         return counter;
     }
 
+    public void remove(int code) {
+        registered.remove(code);
+    }
+
+
     public void activateBluetooth(BaseActivity activity) {
 
     }
