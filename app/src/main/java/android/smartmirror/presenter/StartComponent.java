@@ -1,17 +1,13 @@
 package android.smartmirror.presenter;
 
 import android.content.Context;
-import android.smartmirror.model.BluetoothName;
-import android.smartmirror.model.Connection;
 import android.smartmirror.view.IStartActivity;
-import android.util.Log;
 
 /**
  * Created by jannik on 07.03.18.
  */
 
 public class StartComponent implements IStartComponent {
-    private BluetoothName bluetoothName;
     private IStartActivity iStartActivity;
 
     public StartComponent(IStartActivity iStartActivity) {
@@ -20,12 +16,11 @@ public class StartComponent implements IStartComponent {
 
     @Override
     public String getBluetoothName(Context context) {
-        return bluetoothName.getName(context);
+        return "foo";
     }
 
     @Override
     public void setBluetoothName(Context context, String name) {
-        bluetoothName.setName(name,context);
     }
 
     private void connectToMirror() {

@@ -1,5 +1,4 @@
-package android.smartmirror.model;
-
+package android.smartmirror.bluetooth;
 
 import android.content.Context;
 import android.util.Log;
@@ -11,26 +10,42 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
+/**
+ * Created by SubmergedTree a.k.a Jannik Seemann on 17.03.18.
+ */
 
-public class BluetoothName {
+public class BluetoothServerName {
     private String name = "raspberrypi";
     private final String filename = "deviceBluetoothName.dbn";
     private boolean isLoaded = false;
+    private Context context = null;
 
-    public void setName(String name, Context context) {
-        this.save(context);
+    public void setApplicationContext(Context context) {
+        this.context = context;
+    }
+
+    public void setName(String name) {
+        if(context == null) {
+            Log.e("BluetoothServerName", "No context is set. Unable to save new name to file");
+        } else {
+            this.save();
+        }
         this.name = name;
     }
 
-    public String getName(Context context) {
+    public String getName() {
         if (!isLoaded) {
-            this.load(context);
-            isLoaded = true;
+            if(context == null) {
+                Log.e("BluetoothServerName", "No context is set. Unable to load name to file");
+            } else {
+                this.load();
+                isLoaded = true;
+            }
         }
         return name;
     }
 
-    private void save(Context context) {
+    private void save() {
         try {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput(filename, Context.MODE_PRIVATE));
             outputStreamWriter.write(name);
@@ -41,7 +56,7 @@ public class BluetoothName {
         }
     }
 
-    private void load(Context context) {
+    private void load() {
         try {
             InputStream inputStream = context.openFileInput(filename);
 
@@ -64,10 +79,5 @@ public class BluetoothName {
         } catch (IOException e) {
             Log.e("login activity", "Can not read file: " + e.toString());
         }
-    }
-
-        @Override
-    public String toString() {
-        return name;
     }
 }

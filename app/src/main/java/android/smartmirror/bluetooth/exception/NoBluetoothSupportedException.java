@@ -1,7 +1,7 @@
-package android.smartmirror.exceptions;
+package android.smartmirror.bluetooth.exception;
 
 /**
- * Created by jannik on 04.03.18.
+ * Created by SubmergedTree a.k.a Jannik Seemann on 17.03.18.
  */
 
 public class NoBluetoothSupportedException extends Exception {
