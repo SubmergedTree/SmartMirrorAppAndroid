@@ -28,6 +28,7 @@ public class BluetoothServerName {
         if(context == null) {
             Log.e("BluetoothServerName", "No context is set. Unable to save new name to file");
         } else {
+            Log.i("BSN saves:", name);
             this.save();
         }
         this.name = name;

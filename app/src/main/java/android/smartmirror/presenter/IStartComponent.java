@@ -9,14 +9,11 @@ import android.content.Context;
 public interface IStartComponent {
 
     /**
-     *
-     * @param context android context.
      * @return bluetooth name of Smart Mirror.
      */
-    String getBluetoothName(Context context);
+    String getBluetoothName();
 
-    void setBluetoothName(Context context, String name);
-
+    void setBluetoothName(String name);
 
 
 }

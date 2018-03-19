@@ -1,20 +1,26 @@
 package android.smartmirror.view;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.smartmirror.R;
 import android.smartmirror.presenter.IStartComponent;
 import android.smartmirror.presenter.StartComponent;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+
+/**
+ * Created by SubmergedTree a.k.a Jannik Seemann on 17.03.18.
+ */
 
 public class StartActivity extends BaseActivity implements IStartActivity {
 
@@ -23,6 +29,7 @@ public class StartActivity extends BaseActivity implements IStartActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i("Start Activity", "Launched");
         setContentView(R.layout.activity_start);
         iStartComponent = new StartComponent(this);
     }
@@ -47,14 +54,14 @@ public class StartActivity extends BaseActivity implements IStartActivity {
                     LinearLayoutCompat.LayoutParams.MATCH_PARENT,
                     LinearLayoutCompat.LayoutParams.MATCH_PARENT);
             input.setLayoutParams(lp);
-            input.setText(iStartComponent.getBluetoothName(getApplicationContext()));
+            input.setText(iStartComponent.getBluetoothName());
             dialogBuilder.setView(input);
 
             dialogBuilder.setCancelable(false)
                     .setTitle(getResources().getString(R.string.change_bt_name_title))
                     .setPositiveButton(getResources().getString(R.string.change_bt_name_button), new DialogInterface.OnClickListener(){
                           public void onClick(DialogInterface dialog, int id) {
-                              iStartComponent.setBluetoothName(getApplicationContext(),input.getText().toString());
+                              iStartComponent.setBluetoothName(input.getText().toString());
                          }
                     });
 
@@ -67,5 +74,23 @@ public class StartActivity extends BaseActivity implements IStartActivity {
     @Override
     public void startSelectUserActivity() {
         super.doIntent(SelectUserActivity.class);
+    }
+
+    @Override
+    public void noBluetoothSupported() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(StartActivity.this);
+        builder.setMessage(R.string.bluetooth_not_supported);
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    @Override
+    public void requestBluetoothActivation() {
+        super.askForBluetooth();
+    }
+
+    @Override
+    public Context getContext() {
+        return getApplicationContext();
     }
 }

@@ -15,6 +15,11 @@ import java.util.TimerTask;
  * Created by SubmergedTree a.k.a Jannik Seemann on 17.03.18.
  */
 
+//Todo: we need a callback which is triggered by a server error.
+//Todo: we need a method to terminate client.
+// -> this method should be invoked when user presses in user select activity the back button.
+// that would probably be the nicest solution. But I think the client side code is robust enough to handel this case.
+
 public class Connection {
     private static final Connection ourInstance = new Connection();
 
@@ -34,7 +39,7 @@ public class Connection {
         this.bluetoothClient = new BluetoothClient();
         this.bluetoothServerName = new BluetoothServerName();
         this.registered = new HashMap();
-        this.connectTimer = new Timer();
+      // this.connectTimer = new Timer();
         this.counter = 0;
         this.isTimerRunning = false;
     }
@@ -56,10 +61,15 @@ public class Connection {
         bluetoothServerName.setApplicationContext(context);
     }
 
+    public String getBluetoothName() {
+        return bluetoothServerName.getName();
+    }
+
     public void setUpBluetooth() {
         try {
             if(!bluetoothClient.activateBluetooth()) {
                 this.requestEnableBluetooth();
+                bluetoothClient.activateBluetooth();
             }
         } catch (NoBluetoothSupportedException e) {
             this.noBluetoothSupported();
@@ -68,40 +78,46 @@ public class Connection {
 
     public void connectToMirror() {
         final String serverName = bluetoothServerName.getName();
+        connectTimer = new Timer();
 
         if (isConnected()) {
             this.cancel();
         }
 
         if(isTimerRunning) {
-            connectTimer.cancel();
-            connectTimer.purge();
+            stopSearchMirror();
         }
 
         if(this.connect(serverName)) {
             return;
         }
-
         connectTimer.schedule(new TimerTask() {
             @Override
             public void run() {
+                Log.e("search", "is searching");
                 isTimerRunning = true;
                 connect(serverName);
             }
         },1,1000*10);
     }
 
-    // maybe somebody try to call connect from multiple threads -> synchronized
-    synchronized private boolean connect(String serverName) {
+    private boolean connect(String serverName) {
         if(bluetoothClient.searchMirror(serverName)) {
             bluetoothClient.start();
             isTimerRunning = false;
             connectTimer.cancel();
             connectTimer.purge();
             Log.e("Is connected" ,String.valueOf(isConnected()));
+            onConnected();
             return true;
         }
         return false;
+    }
+
+    public void stopSearchMirror() {
+        isTimerRunning = false;
+        connectTimer.cancel();
+        connectTimer.purge();
     }
 
     public void send(String msg) {
@@ -140,6 +156,7 @@ public class Connection {
     }
 
     private void requestEnableBluetooth() {
+        Log.i("connection", "request bluetooth");
         Iterator it = registered.entrySet().iterator();
         while(it.hasNext()) {
             Map.Entry entry = (Map.Entry)it.next();
@@ -147,6 +164,18 @@ public class Connection {
                 it.remove();
             } else {
                 ((WeakReference<Observer>)entry.getValue()).get().requestEnableBluetooth();
+            }
+        }
+    }
+
+    private void onConnected() {
+        Iterator it = registered.entrySet().iterator();
+        while(it.hasNext()) {
+            Map.Entry entry = (Map.Entry)it.next();
+            if(entry.getValue() == null) {
+                it.remove();
+            } else {
+                ((WeakReference<Observer>)entry.getValue()).get().onConnected();
             }
         }
     }
@@ -159,6 +188,7 @@ public class Connection {
     public interface Observer {
         void requestEnableBluetooth();
         void noBluetoothSupported();
+        void onConnected();
         void receive(final String msg);
     }
 }

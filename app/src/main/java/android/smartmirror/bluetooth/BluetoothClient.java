@@ -3,12 +3,16 @@ package android.smartmirror.bluetooth;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.os.ParcelUuid;
 import android.smartmirror.bluetooth.exception.NoBluetoothSupportedException;
+import android.smartmirror.bluetooth.exception.NoFittingUUIDException;
 import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -35,7 +39,13 @@ public class BluetoothClient {
         for (BluetoothDevice device : pairedDevices) {
             String deviceName = device.getName();
             if(deviceName.equals(name)) {
-                this.clientThread = new ClientThread(device);
+                Log.e("search Mirror", "no fitting uuid");
+                try {
+                    this.clientThread = new ClientThread(device);
+                } catch (NoFittingUUIDException e) {
+                    Log.e("search Mirror", "no fitting uuid");
+                    return false;
+                }
                 return true;
             }
         }
@@ -74,12 +84,12 @@ public class BluetoothClient {
         //  boolean isCanceled;
         private AtomicBoolean isCanceled;
 
-        public ClientThread(BluetoothDevice device) {
+        public ClientThread(BluetoothDevice device) throws NoFittingUUIDException {
             this.isCanceled = new AtomicBoolean(false);
             try {
                 socket = device.createRfcommSocketToServiceRecord(MY_UUID);
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new NoFittingUUIDException();
             }
             if(!socket.isConnected()) {
                 try {
@@ -87,7 +97,7 @@ public class BluetoothClient {
                     out = socket.getOutputStream();
                     in = socket.getInputStream();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    throw new NoFittingUUIDException();
                 }
             }
         }
@@ -119,7 +129,7 @@ public class BluetoothClient {
 
         // Does not run in the same thread as read.
         // for large data paralyse this task. e.g. ASynchTask ?
-        synchronized private void write(byte[] bytes) {
+        private void write(byte[] bytes) {
             if(isConnected())
                 try {
                     out.write(bytes);
@@ -173,7 +183,7 @@ public class BluetoothClient {
                 readVars.hasRead += hasReceivedOnThisBuffer;
                 if(!readVars.isHeader) {
                     if(readVars.hasRead == readVars.toRead) {
-                        // Log.e("client read final",readVars.wholeReceived);
+                     //   Log.e("client read final",readVars.wholeReceived);
                         Connection.use().receive(readVars.wholeReceived);
                         readVars.wholeReceived = readVars.wholeReceived.substring((int)readVars.toRead);
                         readVars.reset();
