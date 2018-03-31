@@ -5,5 +5,8 @@ package android.smartmirror.presenter;
  */
 
 public interface ISelectUserComponent {
-
+    void delete(int position);
+    void select(int position);
+    void logout();
+    void newUser();
 }

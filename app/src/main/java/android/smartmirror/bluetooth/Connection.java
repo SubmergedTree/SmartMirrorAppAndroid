@@ -31,6 +31,7 @@ public class Connection {
     private BluetoothServerName bluetoothServerName;
 
     private Map<Integer,WeakReference<Observer>> registered;
+    private Map<Integer,WeakReference<DisconnectObserver>> disconnectRegistered;
     private Timer connectTimer;
     private boolean isTimerRunning;
     private int counter;
@@ -39,6 +40,7 @@ public class Connection {
         this.bluetoothClient = new BluetoothClient();
         this.bluetoothServerName = new BluetoothServerName();
         this.registered = new HashMap();
+        this.disconnectRegistered = new HashMap<>();
       // this.connectTimer = new Timer();
         this.counter = 0;
         this.isTimerRunning = false;
@@ -47,6 +49,15 @@ public class Connection {
     public int register(WeakReference<Observer> o) {
         registered.put(++counter,o);
         return counter;
+    }
+
+    public int registerDisconnect(WeakReference<DisconnectObserver> o) {
+        disconnectRegistered.put(1,o);
+        return 0;
+    }
+
+    public void removeDisconnect(int code) {
+        //TODO
     }
 
     public void remove(int code) {
@@ -134,7 +145,7 @@ public class Connection {
     void receive(String msg) {
         Iterator it = registered.entrySet().iterator();
         while(it.hasNext()) {
-            Map.Entry entry = (Map.Entry)it.next();
+            final Map.Entry entry = (Map.Entry)it.next();
             if(entry.getValue() == null) {
                 it.remove();
             } else {
@@ -180,8 +191,21 @@ public class Connection {
         }
     }
 
+    void onConnectionCanceled() {
+        Iterator it = disconnectRegistered.entrySet().iterator();
+        while(it.hasNext()) {
+            Map.Entry entry = (Map.Entry)it.next();
+            if(entry.getValue() == null) {
+                it.remove();
+            } else {
+                ((WeakReference<DisconnectObserver>)entry.getValue()).get().onDisconnect();
+            }
+        }
+    }
+
     public void cancel() {
         Log.e("Connection: ","cancel in Connection");
+        //remove references
         bluetoothClient.cancel();
     }
 
@@ -190,5 +214,9 @@ public class Connection {
         void noBluetoothSupported();
         void onConnected();
         void receive(final String msg);
+    }
+
+    public interface DisconnectObserver {
+        void onDisconnect();
     }
 }

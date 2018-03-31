@@ -18,15 +18,13 @@ import java.util.List;
 
 public class GetUsers implements Connection.Observer {
     private IGetUsers callback;
-    private ObjectMapper mapper;
+    private int ref;
 
     public GetUsers(IGetUsers callback) {
         this.callback = callback;
-        this.mapper = new ObjectMapper();
-        Connection.use().register(new WeakReference<Connection.Observer>(this));
+        ref = Connection.use().register(new WeakReference<Connection.Observer>(this));
         Connection.use().send("GETUSERS");
     }
-
 
     @Override
     public void requestEnableBluetooth() {}
@@ -47,5 +45,6 @@ public class GetUsers implements Connection.Observer {
             e.printStackTrace();
         }
         callback.getResult(userPOJOs);
+        Connection.use().remove(ref);
     }
 }

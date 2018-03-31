@@ -11,7 +11,7 @@ public enum RequestsLegacy {
     ADDPICTURE   ("ADDPICTURE"), // add a picture to an user identified by username
     GETWIDGETS   ("GETWIDGETS"), // get name and position of all used widgets
     UPDATEWIDGETS("UPDATEWIDGETS"), // update widgets for a person
-    UPDATEUSER    ("UPDATEUSER"), //udate name and prename -->compare: Updatewidgets
+    UPDATEUSER    ("UPDATEUSER"), //udate name and prename -->compare: Updatewidgets // remove
     NEWUSER    ("NEWUSER");
 
     private final String message;
@@ -50,6 +50,11 @@ UPDATEWIDGETS:          ->            UPDATEWIDGETS
                         <-                OK
                         ->               JSON
                         ->             OK Or FAILED
+
+NEWUSER:                ->              NEWUSER
+                        <-                 OK
+                        ->                JSON
+                        <-                  OK
 
 Timeout after generous 30 seconds.
 

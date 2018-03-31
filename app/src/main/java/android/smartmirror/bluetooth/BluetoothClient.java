@@ -35,6 +35,11 @@ public class BluetoothClient {
     }
 
     public boolean searchMirror(String name) {
+        try {
+            activateBluetooth();
+        } catch (NoBluetoothSupportedException e) {
+            e.printStackTrace();
+        }
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
         for (BluetoothDevice device : pairedDevices) {
             String deviceName = device.getName();
@@ -190,8 +195,11 @@ public class BluetoothClient {
                     }
                 }
             } catch (IOException e) {
+                isCanceled.set(true);
                 Log.e("read", "exception");
-                e.printStackTrace();
+                Log.e("isConnected", Boolean.toString(this.isConnected()));
+                Connection.use().onConnectionCanceled();
+                //e.printStackTrace();
             }
         }
 

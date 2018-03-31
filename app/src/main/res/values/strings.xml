@@ -18,4 +18,9 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+
+    <string name="validate_delete">Do you really want to delete this User?</string>
+    <string name="delete">Delete</string>
+
+    <string name="new_user">New User</string>
 </resources>

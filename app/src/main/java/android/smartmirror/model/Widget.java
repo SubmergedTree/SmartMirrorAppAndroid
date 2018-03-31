@@ -38,4 +38,5 @@ public class Widget {
     public void setyPosition(int yPosition) {
         this.yPosition = yPosition;
     }
+
 }

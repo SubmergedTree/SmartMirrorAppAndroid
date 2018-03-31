@@ -1,5 +1,7 @@
 package android.smartmirror.api.pojos;
 
+import android.smartmirror.model.User;
+
 /**
  * Created by SubmergedTree a.k.a Jannik Seemann on 19.03.18.
  */
@@ -8,6 +10,18 @@ public class UserPOJO {
     private String name;
     private String prename;
     private String username;
+
+    public UserPOJO(String name, String prename, String username) {
+        this.name = name;
+        this.username = username;
+        this.prename = prename;
+    }
+
+    public UserPOJO(User user) {
+        this.name = user.getName();
+        this.username = user.getUsername();
+        this.prename = user.getPrename();
+    }
 
     public String getName() {
         return name;
