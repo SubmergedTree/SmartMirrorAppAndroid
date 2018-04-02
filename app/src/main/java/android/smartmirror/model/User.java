@@ -1,6 +1,6 @@
 package android.smartmirror.model;
 
-import android.smartmirror.api.pojos.UserPOJO;
+import android.smartmirror.model.api.pojos.UserPOJO;
 
 import java.io.Serializable;
 import java.util.List;
@@ -66,6 +66,6 @@ public class User implements Serializable {
 
     @Override
     public String toString() {
-        return prename + " " + name + " - " + username;
+        return username;
     }
 }

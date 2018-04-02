@@ -3,18 +3,22 @@ package android.smartmirror.view;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.smartmirror.R;
-import android.smartmirror.api.pojos.UserPOJO;
 import android.smartmirror.model.User;
 import android.smartmirror.presenter.ISelectUserComponent;
 import android.smartmirror.presenter.SelectUserComponent;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutCompat;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -48,7 +52,7 @@ public class SelectUserActivity extends BaseActivity implements ISelectUserActiv
             System.out.println("logout");
             selectUserComponent.logout();
         } else if (item.getItemId() == R.id.new_user_button) {
-            //selectUserComponent.newUser();
+            newUserAlert();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -73,6 +77,20 @@ public class SelectUserActivity extends BaseActivity implements ISelectUserActiv
     @Override
     public void startModifyProfileActivity(User user) {
 
+    }
+
+    @Override
+    public void newUserFailure() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SelectUserActivity.this);
+        final TextView input = new TextView(SelectUserActivity.this);
+        LinearLayoutCompat.LayoutParams lp = new LinearLayoutCompat.LayoutParams(
+                LinearLayoutCompat.LayoutParams.MATCH_PARENT,
+                LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(lp);
+        input.setText(R.string.error_new_user);
+        dialogBuilder.setView(input);
+        AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.show();
     }
 
     private void listOnClick() {
@@ -108,6 +126,30 @@ public class SelectUserActivity extends BaseActivity implements ISelectUserActiv
     }
 
     private void newUserAlert() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SelectUserActivity.this);
+        LayoutInflater layoutInflater = SelectUserActivity.this.getLayoutInflater();
+        View newUserView = layoutInflater.inflate(R.layout.select_user_activity_new_user,null);
+        dialogBuilder.setView(newUserView);
+
+        final EditText inputName = (EditText) newUserView.findViewById(R.id.new_user_name);
+        final EditText inputPrename = (EditText) newUserView.findViewById(R.id.new_user_prename);
+        final EditText inputUsername = (EditText) newUserView.findViewById(R.id.new_user_username);
+        final Button apply = (Button) newUserView.findViewById(R.id.apply_new_user);
+
+        final AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.show();
+
+        apply.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String name = inputName.getText().toString();
+                String prename = inputPrename.getText().toString();
+                String username = inputUsername.getText().toString();
+                selectUserComponent.newUser(name, prename, username);
+                alertDialog.cancel();
+            }
+        });
+
 
     }
 }

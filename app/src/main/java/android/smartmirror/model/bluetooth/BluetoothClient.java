@@ -1,18 +1,15 @@
-package android.smartmirror.bluetooth;
+package android.smartmirror.model.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.os.ParcelUuid;
-import android.smartmirror.bluetooth.exception.NoBluetoothSupportedException;
-import android.smartmirror.bluetooth.exception.NoFittingUUIDException;
+import android.smartmirror.model.bluetooth.exception.NoBluetoothSupportedException;
+import android.smartmirror.model.bluetooth.exception.NoFittingUUIDException;
 import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -39,6 +36,9 @@ public class BluetoothClient {
             activateBluetooth();
         } catch (NoBluetoothSupportedException e) {
             e.printStackTrace();
+        }
+        if (bluetoothAdapter == null) {
+            return false;
         }
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
         for (BluetoothDevice device : pairedDevices) {
@@ -165,7 +165,7 @@ public class BluetoothClient {
                 String receivedFromSender = new String(buffer);
                 receivedFromSender = receivedFromSender.substring(0, hasReceivedOnThisBuffer);
                 readVars.wholeReceived = readVars.wholeReceived.concat(receivedFromSender);
-                // Log.e("whole", readVars.wholeReceived);
+                Log.e("whole", readVars.wholeReceived);
 
                 if(readVars.isHeader) {
                     for(int i = (int)readVars.hasRead; i < readVars.wholeReceived.length(); i++) {

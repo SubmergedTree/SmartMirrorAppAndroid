@@ -1,4 +1,4 @@
-package android.smartmirror.bluetooth;
+package android.smartmirror.model.bluetooth;
 
 import android.content.Context;
 import android.util.Log;

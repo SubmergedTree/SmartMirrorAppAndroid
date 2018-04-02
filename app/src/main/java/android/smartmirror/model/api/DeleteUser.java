@@ -1,8 +1,7 @@
-package android.smartmirror.api;
+package android.smartmirror.model.api;
 
-import android.smartmirror.api.pojos.DeleteUserPojo;
-import android.smartmirror.api.pojos.UserPOJO;
-import android.smartmirror.bluetooth.Connection;
+import android.smartmirror.model.api.pojos.DeleteUserPojo;
+import android.smartmirror.model.bluetooth.Connection;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +23,8 @@ public class DeleteUser implements Connection.Observer {
         ref = Connection.use().register(new WeakReference<Connection.Observer>(this));
         Connection.use().send("DELETEUSER");
         firstOK = true;
-        deleteUserPojo = new DeleteUserPojo(username);
+        deleteUserPojo = new DeleteUserPojo();
+        deleteUserPojo.setUsername(username);
     }
 
     @Override

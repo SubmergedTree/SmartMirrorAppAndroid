@@ -1,6 +1,6 @@
-package android.smartmirror.api;
+package android.smartmirror.model.api;
 
-import android.smartmirror.api.pojos.UserPOJO;
+import android.smartmirror.model.api.pojos.UserPOJO;
 import android.smartmirror.model.User;
 
 /**
@@ -15,6 +15,10 @@ public class RequestFactory {
         return new DeleteUser(du, username);
     }
     public static NewUser build(User user, INewUser nu) {
-        return new NewUser(new UserPOJO(user), nu);
+        UserPOJO userPOJO = new UserPOJO();
+        userPOJO.setName(user.getName());
+        userPOJO.setPrename(user.getPrename());
+        userPOJO.setUsername(user.getUsername());
+        return new NewUser(userPOJO, nu);
     }
 }

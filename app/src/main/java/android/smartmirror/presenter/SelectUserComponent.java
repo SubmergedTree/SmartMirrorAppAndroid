@@ -1,10 +1,10 @@
 package android.smartmirror.presenter;
 
-import android.smartmirror.api.IDeleteUser;
-import android.smartmirror.api.IGetUsers;
-import android.smartmirror.api.RequestFactory;
-import android.smartmirror.api.pojos.UserPOJO;
-import android.smartmirror.bluetooth.Connection;
+import android.smartmirror.model.api.IGetUsers;
+import android.smartmirror.model.api.INewUser;
+import android.smartmirror.model.api.RequestFactory;
+import android.smartmirror.model.api.pojos.UserPOJO;
+import android.smartmirror.model.bluetooth.Connection;
 import android.smartmirror.model.User;
 import android.smartmirror.view.ISelectUserActivity;
 import android.util.Log;
@@ -27,15 +27,7 @@ public class SelectUserComponent implements ISelectUserComponent, Connection.Dis
         Connection.use().registerDisconnect(new WeakReference<Connection.DisconnectObserver>(this));
         this.userActivity = userActivity;
         this.users = new ArrayList<>();
-         RequestFactory.build(new IGetUsers() {
-            @Override
-            public void getResult(List<UserPOJO> userPOJOs) {
-                for (UserPOJO u : userPOJOs) {
-                    users.add(new User(u));
-                }
-                userActivity.setUserList(users);
-            }
-        });
+        getUsers();
     }
 
     @Override
@@ -62,13 +54,37 @@ public class SelectUserComponent implements ISelectUserComponent, Connection.Dis
     }
 
     @Override
-    public void newUser() {
-        //RequestFactory.
+    public void newUser(String name, String prename, String username) {
+        User user = new User(username, prename, name);
+        RequestFactory.build(user, new INewUser() {
+            @Override
+            public void result(boolean success) {
+                System.out.println("newUser suceses:" + success);
+                if (!success) {
+                    userActivity.newUserFailure();
+                } else {
+                    getUsers();
+                }
+            }
+        });
     }
 
     @Override
     public void onDisconnect() {
         Log.e("Component", "disconnect");
         userActivity.startStartActivity();
+    }
+
+    private void getUsers() {
+        RequestFactory.build(new IGetUsers() {
+            @Override
+            public void getResult(List<UserPOJO> userPOJOs) {
+                users.clear();
+                for (UserPOJO u : userPOJOs) {
+                    users.add(new User(u));
+                }
+                userActivity.setUserList(users);
+            }
+        });
     }
 }

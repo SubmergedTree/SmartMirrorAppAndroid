@@ -1,7 +1,7 @@
-package android.smartmirror.api;
+package android.smartmirror.model.api;
 
-import android.smartmirror.api.pojos.UserPOJO;
-import android.smartmirror.bluetooth.Connection;
+import android.smartmirror.model.api.pojos.UserPOJO;
+import android.smartmirror.model.bluetooth.Connection;
 import android.util.Log;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -40,9 +40,13 @@ public class GetUsers implements Connection.Observer {
         Log.i("received", msg);
         List<UserPOJO> userPOJOs = new ArrayList<>();
         try {
-            userPOJOs = new ObjectMapper().readValue(msg, new TypeReference<ArrayList<UserPOJO>>(){});
+            userPOJOs = new ObjectMapper().readValue(msg, new TypeReference<List<UserPOJO>>(){});
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        System.out.println("received useres");
+        for (UserPOJO up : userPOJOs) {
+            System.out.println(up.getUsername());
         }
         callback.getResult(userPOJOs);
         Connection.use().remove(ref);

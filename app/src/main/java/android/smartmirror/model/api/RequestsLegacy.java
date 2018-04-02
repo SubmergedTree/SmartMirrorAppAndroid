@@ -1,4 +1,4 @@
-package android.smartmirror.api;
+package android.smartmirror.model.api;
 
 /**
  * Created by SubmergedTree a.k.a Jannik Seemann on 17.03.18.

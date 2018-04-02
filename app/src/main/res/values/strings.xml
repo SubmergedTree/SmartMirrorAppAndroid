@@ -23,4 +23,11 @@
     <string name="delete">Delete</string>
 
     <string name="new_user">New User</string>
+    <string name="new_user_username">username</string>
+    <string name="new_user_prename">prename</string>
+    <string name="new_user_name">name</string>
+    <string name="apply_new_user">Apply</string>
+    <string name="create_new_user">Create a new user</string>
+    <string name="error_new_user">Error on creating new user</string>
+
 </resources>

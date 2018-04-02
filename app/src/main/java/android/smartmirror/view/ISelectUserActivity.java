@@ -1,7 +1,5 @@
 package android.smartmirror.view;
 
-import android.app.Activity;
-import android.smartmirror.api.pojos.UserPOJO;
 import android.smartmirror.model.User;
 
 import java.util.List;
@@ -14,4 +12,5 @@ public interface ISelectUserActivity  {
     void setUserList(List<User> users);
     void startStartActivity();
     void startModifyProfileActivity(User user);
+    void newUserFailure();
 }

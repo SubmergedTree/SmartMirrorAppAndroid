@@ -1,4 +1,4 @@
-package android.smartmirror.api.pojos;
+package android.smartmirror.model.api.pojos;
 
 /**
  * Created by SubmergedTree a.k.a Jannik Seemann on 21.03.18.
@@ -6,10 +6,6 @@ package android.smartmirror.api.pojos;
 
 public class DeleteUserPojo {
     private String username;
-
-    public DeleteUserPojo(String username) {
-        this.username = username;
-    }
 
     public String getUsername() {
         return username;

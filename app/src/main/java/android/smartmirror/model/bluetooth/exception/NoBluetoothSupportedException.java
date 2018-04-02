@@ -1,4 +1,4 @@
-package android.smartmirror.bluetooth.exception;
+package android.smartmirror.model.bluetooth.exception;
 
 /**
  * Created by SubmergedTree a.k.a Jannik Seemann on 17.03.18.

@@ -1,6 +1,6 @@
 package android.smartmirror.presenter;
 
-import android.smartmirror.bluetooth.Connection;
+import android.smartmirror.model.bluetooth.Connection;
 import android.smartmirror.view.IStartActivity;
 import android.util.Log;
 
@@ -31,7 +31,7 @@ public class StartComponent implements IStartComponent, Connection.Observer {
     public void setBluetoothName(String name) {
         Connection.use().stopSearchMirror();
         Connection.use().setBluetoothServerName(name);
-        Connection.use().connectToMirror();
+     //   Connection.use().connectToMirror();
     }
 
     private void connectToMirror() {

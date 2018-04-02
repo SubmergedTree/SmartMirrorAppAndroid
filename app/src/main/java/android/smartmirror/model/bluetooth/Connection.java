@@ -1,7 +1,8 @@
-package android.smartmirror.bluetooth;
+package android.smartmirror.model.bluetooth;
 
 import android.content.Context;
-import android.smartmirror.bluetooth.exception.NoBluetoothSupportedException;
+import android.os.AsyncTask;
+import android.smartmirror.model.bluetooth.exception.NoBluetoothSupportedException;
 import android.util.Log;
 
 import java.lang.ref.WeakReference;
@@ -102,15 +103,61 @@ public class Connection {
         if(this.connect(serverName)) {
             return;
         }
-        connectTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Log.e("search", "is searching");
-                isTimerRunning = true;
-                connect(serverName);
-            }
-        },1,1000*10);
+
+        try {
+            connectTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    Log.e("search", "is searching");
+                    isTimerRunning = true;
+                    connect(serverName);
+                }
+            }, 1, 1000 * 10);
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
     }
+
+
+
+  /*  public void connectToMirror() {
+        new ConnectTask().execute();
+    }
+
+    private class ConnectTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            final String serverName = bluetoothServerName.getName();
+            connectTimer = new Timer();
+
+            if (isConnected()) {
+                bluetoothClient.cancel();
+            }
+
+   //     if(isTimerRunning) {
+   //         stopSearchMirror();
+   //     }
+
+            if(connect(serverName)) {
+                return null;
+            }
+
+            try {
+                connectTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        Log.e("search", "is searching");
+                        isTimerRunning = true;
+                        connect(serverName);
+                    }
+                }, 1, 1000 * 10);
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }*/
 
     private boolean connect(String serverName) {
         if(bluetoothClient.searchMirror(serverName)) {
@@ -143,6 +190,7 @@ public class Connection {
     }
 
     void receive(String msg) {
+        System.out.println(msg);
         Iterator it = registered.entrySet().iterator();
         while(it.hasNext()) {
             final Map.Entry entry = (Map.Entry)it.next();

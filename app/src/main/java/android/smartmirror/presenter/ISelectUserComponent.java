@@ -8,5 +8,5 @@ public interface ISelectUserComponent {
     void delete(int position);
     void select(int position);
     void logout();
-    void newUser();
+    void newUser(String name, String prename, String username);
 }

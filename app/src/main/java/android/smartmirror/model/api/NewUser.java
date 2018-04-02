@@ -1,7 +1,8 @@
-package android.smartmirror.api;
+package android.smartmirror.model.api;
 
-import android.smartmirror.api.pojos.UserPOJO;
-import android.smartmirror.bluetooth.Connection;
+import android.smartmirror.model.api.pojos.UserPOJO;
+import android.smartmirror.model.bluetooth.Connection;
+import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,10 +43,14 @@ public class NewUser implements Connection.Observer {
 
     @Override
     public void receive(String msg) {
+        Log.e("NewUser", "NewUser");
+        Log.e("NewUser", msg);
         if (expire == Expire.SENDNEWUSER) {
             if (msg.equals("OK")) {
+                Log.d("NewUser", "Receive OK1");
                 try {
                     String json = new ObjectMapper().writeValueAsString(userPOJO);
+                    System.out.println(json);
                     Connection.use().send(json);
                     expire = Expire.SENDJSON;
                 } catch (JsonProcessingException e) {
@@ -56,10 +61,12 @@ public class NewUser implements Connection.Observer {
             }
         } else if (expire == Expire.SENDJSON) {
             if (msg.equals("OK")) {
+                Log.d("NewUser", "Receive OK2");
                 callback.result(true);
             } else {
                 callback.result(false);
             }
+            Connection.use().remove(ref);
         }
     }
 }

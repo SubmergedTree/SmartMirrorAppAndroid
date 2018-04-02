@@ -1,11 +1,9 @@
 package android.smartmirror.view;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.smartmirror.R;
-import android.smartmirror.bluetooth.Connection;
+import android.smartmirror.model.bluetooth.Connection;
 import android.smartmirror.presenter.IStartComponent;
 import android.smartmirror.presenter.StartComponent;
 import android.support.v7.app.AlertDialog;
@@ -16,7 +14,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.EditText;
 
 /**
@@ -47,8 +44,8 @@ public class StartActivity extends BaseActivity implements IStartActivity {
         if(item.getItemId() == R.id.menu_change_bt_name_button){
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(StartActivity.this);
             LayoutInflater layoutInflater = StartActivity.this.getLayoutInflater();
-            View alertView = layoutInflater.inflate(R.layout.start_activity_change_bt_name,null);
-            dialogBuilder.setView(alertView);
+            //View alertView = layoutInflater.inflate(R.layout.start_activity_change_bt_name,null);
+            //dialogBuilder.setView(alertView);
 
             final EditText input = new EditText(StartActivity.this);
             LinearLayoutCompat.LayoutParams lp = new LinearLayoutCompat.LayoutParams(

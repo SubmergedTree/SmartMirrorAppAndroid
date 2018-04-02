@@ -1,4 +1,4 @@
-package android.smartmirror.api.pojos;
+package android.smartmirror.model.api.pojos;
 
 import android.smartmirror.model.User;
 
@@ -10,18 +10,6 @@ public class UserPOJO {
     private String name;
     private String prename;
     private String username;
-
-    public UserPOJO(String name, String prename, String username) {
-        this.name = name;
-        this.username = username;
-        this.prename = prename;
-    }
-
-    public UserPOJO(User user) {
-        this.name = user.getName();
-        this.username = user.getUsername();
-        this.prename = user.getPrename();
-    }
 
     public String getName() {
         return name;
@@ -45,10 +33,5 @@ public class UserPOJO {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    @Override
-    public String toString() {
-        return prename + " " + name + " - " + username;
     }
 }

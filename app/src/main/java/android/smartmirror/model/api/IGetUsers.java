@@ -1,7 +1,7 @@
-package android.smartmirror.api;
+package android.smartmirror.model.api;
 
 
-import android.smartmirror.api.pojos.UserPOJO;
+import android.smartmirror.model.api.pojos.UserPOJO;
 
 import java.util.List;
 
