@@ -30,4 +30,11 @@
     <string name="create_new_user">Create a new user</string>
     <string name="error_new_user">Error on creating new user</string>
 
+    <string name="error_delete_user">Error on deleting this user</string>
+
+    <string name="picture_gallery">Search Picture on device</string>
+    <string name="picture_camera">Take a Picture</string>
+
+    <string name="choose_widget_dialog_title">Choose a widget</string>
+
 </resources>

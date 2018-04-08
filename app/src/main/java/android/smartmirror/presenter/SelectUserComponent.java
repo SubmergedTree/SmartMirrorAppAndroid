@@ -1,5 +1,6 @@
 package android.smartmirror.presenter;
 
+import android.smartmirror.model.api.IDeleteUser;
 import android.smartmirror.model.api.IGetUsers;
 import android.smartmirror.model.api.INewUser;
 import android.smartmirror.model.api.RequestFactory;
@@ -17,7 +18,7 @@ import java.util.List;
  * Created by SubmergedTree a.k.a Jannik Seemann on 17.03.18.
  */
 
-//TODO: add reload Button on menu
+//TODO: add reload user Button on menu
 
 public class SelectUserComponent implements ISelectUserComponent, Connection.DisconnectObserver {
     private List<User> users;
@@ -32,14 +33,19 @@ public class SelectUserComponent implements ISelectUserComponent, Connection.Dis
 
     @Override
     public void delete(final int position) {
-        System.out.println("delete");
-      /*  RequestFactory.build(new IDeleteUser(){
+        System.out.println(users.get(position).getUsername());
+        RequestFactory.build(users.get(position).getUsername(), new IDeleteUser(){
             @Override
             public void result(boolean success) {
-                users.remove(position);
-                userActivity.setUserList(users);
+                System.out.println("delete " + position + " success: " + success);
+                if(success && (users.size() > position)) {
+                    users.remove(position);
+                    userActivity.setUserList(users);
+                } else {
+                    userActivity.deleteUserFailureToast();
+                }
             }
-        },users.get(position).getUsername());*/
+        });
     }
 
     @Override

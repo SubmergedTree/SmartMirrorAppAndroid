@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -49,7 +50,6 @@ public class SelectUserActivity extends BaseActivity implements ISelectUserActiv
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == R.id.logout_button) {
-            System.out.println("logout");
             selectUserComponent.logout();
         } else if (item.getItemId() == R.id.new_user_button) {
             newUserAlert();
@@ -76,28 +76,33 @@ public class SelectUserActivity extends BaseActivity implements ISelectUserActiv
 
     @Override
     public void startModifyProfileActivity(User user) {
-
+        super.doIntent(ModifyProfileActivity.class, user, "user");
     }
 
     @Override
     public void newUserFailure() {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SelectUserActivity.this);
-        final TextView input = new TextView(SelectUserActivity.this);
-        LinearLayoutCompat.LayoutParams lp = new LinearLayoutCompat.LayoutParams(
-                LinearLayoutCompat.LayoutParams.MATCH_PARENT,
-                LinearLayoutCompat.LayoutParams.MATCH_PARENT);
-        input.setLayoutParams(lp);
-        input.setText(R.string.error_new_user);
-        dialogBuilder.setView(input);
-        AlertDialog alertDialog = dialogBuilder.create();
-        alertDialog.show();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SelectUserActivity.this);
+                final TextView input = new TextView(SelectUserActivity.this);
+                LinearLayoutCompat.LayoutParams lp = new LinearLayoutCompat.LayoutParams(
+                        LinearLayoutCompat.LayoutParams.MATCH_PARENT,
+                        LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+                input.setLayoutParams(lp);
+                input.setText(R.string.error_new_user);
+                dialogBuilder.setView(input);
+                AlertDialog alertDialog = dialogBuilder.create();
+                alertDialog.show();
+            }
+        });
+
     }
 
     private void listOnClick() {
         userList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                System.out.println("click");
                 selectUserComponent.select(position);
             }
         });
@@ -111,18 +116,27 @@ public class SelectUserActivity extends BaseActivity implements ISelectUserActiv
         });
     }
 
-
     private void deleteAlert(final int position) {
-        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
-        alertBuilder.setMessage(R.string.validate_delete);
-        alertBuilder.setNeutralButton(R.string.delete, new DialogInterface.OnClickListener(){
+        runOnUiThread(new Runnable() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                selectUserComponent.delete(position);
+            public void run() {
+                AlertDialog.Builder alertBuilder = new AlertDialog.Builder(SelectUserActivity.this);
+                alertBuilder.setMessage(R.string.validate_delete);
+                alertBuilder.setNegativeButton(R.string.delete, new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        selectUserComponent.delete(position);
+                    }
+                });
+                AlertDialog alertDialog = alertBuilder.create();
+                alertDialog.show();
             }
         });
-        AlertDialog alertDialog = alertBuilder.create();
-        alertDialog.show();
+    }
+
+    @Override
+    public void deleteUserFailureToast() {
+        Toast.makeText(getApplicationContext(), R.string.error_delete_user, Toast.LENGTH_SHORT).show();
     }
 
     private void newUserAlert() {

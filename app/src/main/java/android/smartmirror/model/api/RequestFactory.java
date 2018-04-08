@@ -11,7 +11,7 @@ public class RequestFactory {
     public static GetUsers build(IGetUsers cb) {
         return new GetUsers(cb);
     }
-    public static DeleteUser build(IDeleteUser du, String username) {
+    public static DeleteUser build(String username, IDeleteUser du) {
         return new DeleteUser(du, username);
     }
     public static NewUser build(User user, INewUser nu) {

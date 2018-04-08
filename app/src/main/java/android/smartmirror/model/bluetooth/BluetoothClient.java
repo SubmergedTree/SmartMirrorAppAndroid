@@ -165,7 +165,7 @@ public class BluetoothClient {
                 String receivedFromSender = new String(buffer);
                 receivedFromSender = receivedFromSender.substring(0, hasReceivedOnThisBuffer);
                 readVars.wholeReceived = readVars.wholeReceived.concat(receivedFromSender);
-                Log.e("whole", readVars.wholeReceived);
+               // Log.e("whole", readVars.wholeReceived);
 
                 if(readVars.isHeader) {
                     for(int i = (int)readVars.hasRead; i < readVars.wholeReceived.length(); i++) {

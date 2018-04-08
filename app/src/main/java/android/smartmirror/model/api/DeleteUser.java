@@ -36,7 +36,6 @@ public class DeleteUser implements Connection.Observer {
     @Override
     public void onConnected() {}
 
-    // should this use a thread ?
     @Override
     public void receive(String msg) {
         if (firstOK) {
@@ -46,6 +45,7 @@ public class DeleteUser implements Connection.Observer {
             }
         } else {
             callback.result(msg.equals("OK"));
+            Connection.use().remove(ref);
         }
     }
 

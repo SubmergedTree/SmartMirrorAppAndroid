@@ -13,4 +13,5 @@ public interface ISelectUserActivity  {
     void startStartActivity();
     void startModifyProfileActivity(User user);
     void newUserFailure();
+    void deleteUserFailureToast();
 }

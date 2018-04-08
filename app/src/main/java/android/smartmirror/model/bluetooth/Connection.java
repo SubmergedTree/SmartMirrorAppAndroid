@@ -20,7 +20,7 @@ import java.util.TimerTask;
 //Todo: we need a method to terminate client.
 // -> this method should be invoked when user presses in user select activity the back button.
 // that would probably be the nicest solution. But I think the client side code is robust enough to handel this case.
-
+//Todo: Rework this class
 public class Connection {
     private static final Connection ourInstance = new Connection();
 
@@ -159,7 +159,7 @@ public class Connection {
         }
     }*/
 
-    private boolean connect(String serverName) {
+    synchronized private boolean connect(String serverName) {
         if(bluetoothClient.searchMirror(serverName)) {
             bluetoothClient.start();
             isTimerRunning = false;
@@ -190,7 +190,7 @@ public class Connection {
     }
 
     void receive(String msg) {
-        System.out.println(msg);
+        //System.out.println(msg);
         Iterator it = registered.entrySet().iterator();
         while(it.hasNext()) {
             final Map.Entry entry = (Map.Entry)it.next();

@@ -1,42 +1,28 @@
 package android.smartmirror.model;
 
+import android.smartmirror.R;
+
 /**
  * Created by jannik on 04.03.18.
  */
 
-public class Widget {
-    private String name;
-    private int xPosition;
-    private int yPosition;
+public enum Widget {
+    WEATHER_TODAY(R.drawable.ic_dashboard_black_24dp),
+    WEATHER_WEEK(R.drawable.ic_dashboard_black_24dp),
+    CLOCK(R.drawable.ic_dashboard_black_24dp),
+    JOKE(R.drawable.ic_dashboard_black_24dp),
+    HEADLINE_NEWS(R.drawable.ic_dashboard_black_24dp);
 
-    public Widget(String name, int xPosition, int yPosition) {
-        this.name = name;
-        this.xPosition = xPosition;
-        this.yPosition = yPosition;
+    private int drawable;
+
+    Widget(int drawable) {
+        this.drawable = drawable;
     }
 
-    public String getName() {
-        return name;
+    public int getDrawable() {
+        return drawable;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
 
-    public int getxPosition() {
-        return xPosition;
-    }
-
-    public void setxPosition(int xPosition) {
-        this.xPosition = xPosition;
-    }
-
-    public int getyPosition() {
-        return yPosition;
-    }
-
-    public void setyPosition(int yPosition) {
-        this.yPosition = yPosition;
-    }
 
 }
