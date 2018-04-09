@@ -19,6 +19,9 @@ public class WidgetEditorComponent implements IWidgetEditorComponent {
     public WidgetEditorComponent(IWidgetEditorFragment widgetEditorFragment) {
         this.widgetEditorFragment = widgetEditorFragment;
         selectedPosition = WidgetPosition.NONESELECTED;
+
+        //retrieve current widgets with position from mirror
+        //store this in a memento
     }
 
     @Override
@@ -34,11 +37,22 @@ public class WidgetEditorComponent implements IWidgetEditorComponent {
     @Override
     public void onWidgetSelected(String name) {
         Widget selectedWidget = Widget.valueOf(name);
-        // send widget and position to mirror
     }
 
     @Override
     public void onWidgetSelectedDialogCancelled() {
         selectedPosition = WidgetPosition.NONESELECTED;
+    }
+
+    @Override
+    public void sendToMirror() {
+        //send to mirror
+
+        selectedPosition = WidgetPosition.NONESELECTED;
+    }
+
+    @Override
+    public void undo() {
+        // restore from memento
     }
 }

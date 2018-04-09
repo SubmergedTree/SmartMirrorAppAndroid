@@ -34,6 +34,8 @@
 
     <string name="picture_gallery">Search Picture on device</string>
     <string name="picture_camera">Take a Picture</string>
+    <string name="send_to_mirror">Send to mirror</string>
+
 
     <string name="choose_widget_dialog_title">Choose a widget</string>
 

@@ -10,4 +10,6 @@ public interface IWidgetEditorComponent {
     void onPositionClicked(WidgetPosition position);
     void onWidgetSelected(String name);
     void onWidgetSelectedDialogCancelled();
+    void sendToMirror();
+    void undo();
 }

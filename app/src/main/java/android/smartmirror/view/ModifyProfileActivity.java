@@ -16,8 +16,6 @@ import android.view.MenuItem;
 
 public class ModifyProfileActivity extends BaseActivity implements IModifyProfileActivity {
 
-    private IModifyProfileComponent modifyProfileComponent;
-
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -46,7 +44,6 @@ public class ModifyProfileActivity extends BaseActivity implements IModifyProfil
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        //modifyProfileComponent = new ModifyProfileComponent(selectedUser);
     }
 
     private void loadFragment(Fragment fragment) {
