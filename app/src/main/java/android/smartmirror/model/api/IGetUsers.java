@@ -13,5 +13,5 @@ import java.util.List;
 We can add a callback method which is called when an error occurred.
  */
 public interface IGetUsers {
-    void getResult(List<UserPOJO> userPOJOs);
+    void result(List<UserPOJO> userPOJOs);
 }

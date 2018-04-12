@@ -84,7 +84,7 @@ public class SelectUserComponent implements ISelectUserComponent, Connection.Dis
     private void getUsers() {
         RequestFactory.build(new IGetUsers() {
             @Override
-            public void getResult(List<UserPOJO> userPOJOs) {
+            public void result(List<UserPOJO> userPOJOs) {
                 users.clear();
                 for (UserPOJO u : userPOJOs) {
                     users.add(new User(u));

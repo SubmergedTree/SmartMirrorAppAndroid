@@ -48,7 +48,7 @@ public class GetUsers implements Connection.Observer {
         for (UserPOJO up : userPOJOs) {
             System.out.println(up.getUsername());
         }
-        callback.getResult(userPOJOs);
+        callback.result(userPOJOs);
         Connection.use().remove(ref);
     }
 }
