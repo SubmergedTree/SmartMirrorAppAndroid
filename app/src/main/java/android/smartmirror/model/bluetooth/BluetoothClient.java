@@ -3,6 +3,13 @@ package android.smartmirror.model.bluetooth;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.smartmirror.model.bluetooth.exception.NoBluetoothSupportedException;
 import android.smartmirror.model.bluetooth.exception.NoFittingUUIDException;
 import android.util.Log;
@@ -20,8 +27,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BluetoothClient {
     private BluetoothAdapter bluetoothAdapter;
-    private final UUID MY_UUID = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
     private ClientThread clientThread;
+
+    private BluetoothSocket socket;
+    private OutputStream out;
+    private InputStream in;
 
     public boolean activateBluetooth() throws NoBluetoothSupportedException {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -31,7 +41,7 @@ public class BluetoothClient {
         return bluetoothAdapter.isEnabled();
     }
 
-    public boolean searchMirror(String name) {
+    public boolean searchDevice(String name) {
         try {
             activateBluetooth();
         } catch (NoBluetoothSupportedException e) {
@@ -46,27 +56,24 @@ public class BluetoothClient {
             if(deviceName.equals(name)) {
                 Log.e("search Mirror", "no fitting uuid");
                 try {
-                    this.clientThread = new ClientThread(device);
+                    Connector connector = new Connector(device, socket, out, in, this);
+                    connector.start();
                 } catch (NoFittingUUIDException e) {
                     Log.e("search Mirror", "no fitting uuid");
                     return false;
                 }
-                return true;
             }
         }
-        return false;
+        return true;
     }
 
     public void start() {
-        if(!(clientThread == null)) {
-            clientThread.start();
-        }
+        this.clientThread = new ClientThread(socket, out, in, bluetoothAdapter);
+        this.clientThread.start();
     }
 
     public void send(String msg) {
-        //Log.e("Status: ","send now");
         clientThread.write(msg.getBytes());
-        //Log.e("Status: ","dataSend");
     }
 
     public void cancel() {
@@ -76,35 +83,73 @@ public class BluetoothClient {
     }
 
     public boolean isConnected() {
-        if (clientThread == null) {
-            return false;
-        }
-        return clientThread.isConnected();
+        return clientThread != null && clientThread.isConnected();
     }
 
-    private class ClientThread extends Thread {
+    private void onConnectedState(boolean success) {
+        if (success) {
+            Connection.use().invokeCallbacks(Connection.Callbacks.ON_CONNECTED);
+        }
+    }
+
+    private static class Connector extends Thread {
+
         private BluetoothSocket socket;
         private OutputStream out;
         private InputStream in;
-        //  boolean isCanceled;
-        private AtomicBoolean isCanceled;
+        private final BluetoothClient bluetoothClient;
 
-        public ClientThread(BluetoothDevice device) throws NoFittingUUIDException {
-            this.isCanceled = new AtomicBoolean(false);
+        private final UUID MY_UUID = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
+
+        Connector(BluetoothDevice device, BluetoothSocket socket, OutputStream out,
+                  InputStream in, BluetoothClient bluetoothClient) throws NoFittingUUIDException{
+            super("Connector");
+            this.out = out;
+            this.in = in;
+            this.socket = socket;
+            this.bluetoothClient = bluetoothClient;
+
+            createRfcommSocket(device);
+        }
+
+        private void createRfcommSocket(BluetoothDevice device) throws NoFittingUUIDException{
             try {
                 socket = device.createRfcommSocketToServiceRecord(MY_UUID);
             } catch (IOException e) {
                 throw new NoFittingUUIDException();
             }
+        }
+
+        @Override
+        public void run() {
             if(!socket.isConnected()) {
                 try {
                     socket.connect();
                     out = socket.getOutputStream();
                     in = socket.getInputStream();
                 } catch (IOException e) {
-                    throw new NoFittingUUIDException();
+                    bluetoothClient.onConnectedState(false);
+                    return;
                 }
+                bluetoothClient.onConnectedState(true);
             }
+        }
+    }
+
+    private static class ClientThread extends Thread {
+        private AtomicBoolean isCanceled;
+
+        private BluetoothSocket socket;
+        private OutputStream out;
+        private InputStream in;
+        private BluetoothAdapter bluetoothAdapter;
+
+        ClientThread(BluetoothSocket socket, OutputStream out, InputStream in, BluetoothAdapter bluetoothAdapter) {
+            this.isCanceled = new AtomicBoolean(false);
+            this.out = out;
+            this.in = in;
+            this.socket = socket;
+            this.bluetoothAdapter = bluetoothAdapter;
         }
 
         @Override
@@ -188,8 +233,8 @@ public class BluetoothClient {
                 readVars.hasRead += hasReceivedOnThisBuffer;
                 if(!readVars.isHeader) {
                     if(readVars.hasRead == readVars.toRead) {
-                     //   Log.e("client read final",readVars.wholeReceived);
-                        Connection.use().receive(readVars.wholeReceived);
+                        Log.e("client read final",readVars.wholeReceived);
+                        Connection.use().invokeCallbacks(Connection.Callbacks.RECEIVE,readVars.wholeReceived);
                         readVars.wholeReceived = readVars.wholeReceived.substring((int)readVars.toRead);
                         readVars.reset();
                     }
@@ -198,7 +243,7 @@ public class BluetoothClient {
                 isCanceled.set(true);
                 Log.e("read", "exception");
                 Log.e("isConnected", Boolean.toString(this.isConnected()));
-                Connection.use().onConnectionCanceled();
+                Connection.use().invokeDisconnectCallback();
                 //e.printStackTrace();
             }
         }

@@ -13,7 +13,7 @@ import java.lang.ref.WeakReference;
  * Created by SubmergedTree a.k.a Jannik Seemann on 31.03.18.
  */
 
-public class NewUser implements Connection.Observer {
+public class NewUser extends BaseRequest {
     private INewUser callback;
     private int ref;
     private Expire expire;
@@ -31,15 +31,6 @@ public class NewUser implements Connection.Observer {
         Connection.use().send("NEWUSER");
         expire = Expire.SENDNEWUSER;
     }
-
-    @Override
-    public void requestEnableBluetooth() {}
-
-    @Override
-    public void noBluetoothSupported() {}
-
-    @Override
-    public void onConnected() {}
 
     @Override
     public void receive(String msg) {

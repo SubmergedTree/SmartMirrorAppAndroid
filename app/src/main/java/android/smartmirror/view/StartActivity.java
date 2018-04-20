@@ -14,7 +14,10 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
 /**
  * Created by SubmergedTree a.k.a Jannik Seemann on 17.03.18.
@@ -23,6 +26,8 @@ import android.widget.EditText;
 public class StartActivity extends BaseActivity implements IStartActivity {
 
     private IStartComponent iStartComponent;
+    private Button searchButton;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +35,16 @@ public class StartActivity extends BaseActivity implements IStartActivity {
         Log.i("Start Activity", "Launched");
         setContentView(R.layout.activity_start);
         iStartComponent = new StartComponent(this);
+        searchButton = (Button)findViewById(R.id.search_bt_device);
+        progressBar = (ProgressBar)findViewById(R.id.progressBarConnecting);
+        hideProgressCircle();
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                progressBar.setVisibility(View.VISIBLE);
+                iStartComponent.search();
+            }
+        });
     }
 
     @Override
@@ -44,8 +59,6 @@ public class StartActivity extends BaseActivity implements IStartActivity {
         if(item.getItemId() == R.id.menu_change_bt_name_button){
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(StartActivity.this);
             LayoutInflater layoutInflater = StartActivity.this.getLayoutInflater();
-            //View alertView = layoutInflater.inflate(R.layout.start_activity_change_bt_name,null);
-            //dialogBuilder.setView(alertView);
 
             final EditText input = new EditText(StartActivity.this);
             LinearLayoutCompat.LayoutParams lp = new LinearLayoutCompat.LayoutParams(
@@ -90,5 +103,15 @@ public class StartActivity extends BaseActivity implements IStartActivity {
     @Override
     public Context getContext() {
         return getApplicationContext();
+    }
+
+    @Override
+    public void hideProgressCircle() {
+        progressBar.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void showProgressCircle() {
+        progressBar.setVisibility(View.VISIBLE);
     }
 }
