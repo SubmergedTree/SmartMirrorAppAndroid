@@ -26,12 +26,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 
 public class BluetoothClient {
-    private BluetoothAdapter bluetoothAdapter;
-    private ClientThread clientThread;
-
-    private BluetoothSocket socket;
-    private OutputStream out;
-    private InputStream in;
+    private static BluetoothAdapter bluetoothAdapter;
+    private static ClientThread clientThread;
+    private static BluetoothSocket socket;
+    private static OutputStream out;
+    private static InputStream in;
 
     public boolean activateBluetooth() throws NoBluetoothSupportedException {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -56,7 +55,7 @@ public class BluetoothClient {
             if(deviceName.equals(name)) {
                 Log.e("search Mirror", "no fitting uuid");
                 try {
-                    Connector connector = new Connector(device, socket, out, in, this);
+                    Connector connector = new Connector(device);
                     connector.start();
                 } catch (NoFittingUUIDException e) {
                     Log.e("search Mirror", "no fitting uuid");
@@ -67,10 +66,6 @@ public class BluetoothClient {
         return true;
     }
 
-    public void start() {
-        this.clientThread = new ClientThread(socket, out, in, bluetoothAdapter);
-        this.clientThread.start();
-    }
 
     public void send(String msg) {
         clientThread.write(msg.getBytes());
@@ -86,29 +81,13 @@ public class BluetoothClient {
         return clientThread != null && clientThread.isConnected();
     }
 
-    private void onConnectedState(boolean success) {
-        if (success) {
-            Connection.use().invokeCallbacks(Connection.Callbacks.ON_CONNECTED);
-        }
-    }
 
     private static class Connector extends Thread {
 
-        private BluetoothSocket socket;
-        private OutputStream out;
-        private InputStream in;
-        private final BluetoothClient bluetoothClient;
 
         private final UUID MY_UUID = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
 
-        Connector(BluetoothDevice device, BluetoothSocket socket, OutputStream out,
-                  InputStream in, BluetoothClient bluetoothClient) throws NoFittingUUIDException{
-            super("Connector");
-            this.out = out;
-            this.in = in;
-            this.socket = socket;
-            this.bluetoothClient = bluetoothClient;
-
+        Connector(BluetoothDevice device) throws NoFittingUUIDException{
             createRfcommSocket(device);
         }
 
@@ -128,10 +107,12 @@ public class BluetoothClient {
                     out = socket.getOutputStream();
                     in = socket.getInputStream();
                 } catch (IOException e) {
-                    bluetoothClient.onConnectedState(false);
                     return;
                 }
-                bluetoothClient.onConnectedState(true);
+                Log.i("Connector", "Start clientThread");
+                clientThread =  new ClientThread();
+                clientThread.start();
+                Connection.use().invokeCallbacks(Connection.Callbacks.ON_CONNECTED);
             }
         }
     }
@@ -139,17 +120,8 @@ public class BluetoothClient {
     private static class ClientThread extends Thread {
         private AtomicBoolean isCanceled;
 
-        private BluetoothSocket socket;
-        private OutputStream out;
-        private InputStream in;
-        private BluetoothAdapter bluetoothAdapter;
-
-        ClientThread(BluetoothSocket socket, OutputStream out, InputStream in, BluetoothAdapter bluetoothAdapter) {
+        ClientThread() {
             this.isCanceled = new AtomicBoolean(false);
-            this.out = out;
-            this.in = in;
-            this.socket = socket;
-            this.bluetoothAdapter = bluetoothAdapter;
         }
 
         @Override
@@ -157,6 +129,7 @@ public class BluetoothClient {
             bluetoothAdapter.cancelDiscovery();
             byte[] buffer = new byte[1024];
 
+            Log.i("ClientThread", "isRunning");
             while(!isCanceled.get()) {
                 if(!isConnected()) {
                     break;
@@ -190,12 +163,12 @@ public class BluetoothClient {
         }
 
         private class ReadVariables {
-            public long toRead = 0;
-            public long hasRead = 0;
-            public String wholeReceived = "";
-            public boolean isHeader = true;
-            public final char headerChar = 'H';
-            public void reset() {
+             long toRead = 0;
+             long hasRead = 0;
+             String wholeReceived = "";
+             boolean isHeader = true;
+             final char headerChar = 'H';
+             void reset() {
                 toRead = 0;
                 hasRead = 0;
                 isHeader = true;
@@ -248,11 +221,11 @@ public class BluetoothClient {
             }
         }
 
-        synchronized public boolean isConnected() {
+        synchronized boolean isConnected() {
             return socket.isConnected();
         }
 
-        synchronized public void cancel() {
+        synchronized void cancel() {
             if(!this.isCanceled.get()) {
                 this.isCanceled.compareAndSet(false,true);
                 try {

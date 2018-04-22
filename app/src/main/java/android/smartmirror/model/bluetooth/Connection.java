@@ -90,6 +90,7 @@ public class Connection {
 
     public void send(String msg) {
         if(!this.isConnected()) {
+            Log.e("Connection", "is not connected while trying to send");
            invokeDisconnectCallback();
            return;
         }

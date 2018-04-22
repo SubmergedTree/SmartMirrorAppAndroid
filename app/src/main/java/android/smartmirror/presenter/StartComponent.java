@@ -69,7 +69,7 @@ public class StartComponent implements IStartComponent, Connection.Observer {
     public void onConnected() {
         Log.e("connected", "connected");
         Connection.use().remove(code);
-       // iStartActivity.startSelectUserActivity();
+        iStartActivity.startSelectUserActivity();
     }
 
     @Override
