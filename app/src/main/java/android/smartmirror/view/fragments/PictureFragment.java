@@ -9,17 +9,22 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.smartmirror.R;
+import android.smartmirror.model.User;
 import android.smartmirror.presenter.IPictureComponent;
 import android.smartmirror.presenter.PictureComponent;
+import android.smartmirror.view.ModifyProfileActivity;
 import android.smartmirror.view.adapter.GridViewImageAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * Created by SubmergedTree a.k.a Jannik Seemann on 06.04.18.
@@ -32,6 +37,7 @@ public class PictureFragment extends Fragment implements IPictureFragment {
     private final int IMAGE_FROM_CAMERA_ID = 200;
 
     private IPictureComponent pictureComponent;
+    private User user;
 
     private Button useCamera;
     private Button useGallery;
@@ -39,10 +45,17 @@ public class PictureFragment extends Fragment implements IPictureFragment {
     private GridView gridView;
     private GridViewImageAdapter gridViewImageAdapter;
 
+    public PictureFragment() {
+        pictureComponent = new PictureComponent(this);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_pictures,container,false);
+        Bundle userBundle = getArguments();
+        user = (User) userBundle.get("user");
+        //user = ((ModifyProfileActivity)getActivity()).getUser();
 
         useCamera = (Button) view.findViewById(R.id.camera);
         useGallery = (Button) view.findViewById(R.id.gallery);
@@ -50,10 +63,18 @@ public class PictureFragment extends Fragment implements IPictureFragment {
         gridView = (GridView)view.findViewById(R.id.gridview);
 
         gridViewImageAdapter = new GridViewImageAdapter(getActivity());
-        gridView.setAdapter(gridViewImageAdapter);
+        gridViewImageAdapter.setBitmap(pictureComponent.getBitmaps());
+        refreshGridView();
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+               // removeSinglePictureFromGrid(position);
+                pictureComponent.removeBitmapFromGrid(position);
+            }
+        });
 
         buttonListener();
-        pictureComponent = new PictureComponent(this);
         return view;
     }
 
@@ -75,21 +96,9 @@ public class PictureFragment extends Fragment implements IPictureFragment {
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                gridViewImageAdapter.reset();
                 pictureComponent.sendToMirror();
             }
         });
-    }
-
-    public void showPictureOnGrid(Bitmap bitmap) {
-        gridViewImageAdapter.addBitmap(bitmap);
-        gridView.setAdapter(gridViewImageAdapter);
-    }
-
-    @Override
-    public void removeAllPicturesFromGrid() {
-        gridViewImageAdapter.reset();
-        gridView.setAdapter(gridViewImageAdapter);
     }
 
     public void galleryIntent() {
@@ -125,5 +134,28 @@ public class PictureFragment extends Fragment implements IPictureFragment {
                 pictureComponent.getPictureBitmap(imageBitmap);
             }
         }
+    }
+
+    @Override
+    public void refreshGridView() {
+        gridView.setAdapter(gridViewImageAdapter);
+        //gridView.refreshDrawableState();
+    }
+
+    @Override
+    public void setBitmapList(List<Bitmap> bitmaps) {
+        gridViewImageAdapter.setBitmap(bitmaps);
+        refreshGridView();
+    }
+
+    @Override
+    public User getUser() {
+        return user;
+    }
+
+    @Override
+    public void toastSendFailure() {
+        Toast.makeText(getActivity(),R.string.failure_send_pictures,
+                Toast.LENGTH_LONG).show();
     }
 }

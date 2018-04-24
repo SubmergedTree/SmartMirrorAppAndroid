@@ -41,6 +41,8 @@ public class BluetoothClient {
     }
 
     public boolean searchDevice(String name) {
+        Log.i("BluetoothClient", "searchDevice");
+
         try {
             activateBluetooth();
         } catch (NoBluetoothSupportedException e) {
@@ -159,7 +161,6 @@ public class BluetoothClient {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
         }
 
         private class ReadVariables {

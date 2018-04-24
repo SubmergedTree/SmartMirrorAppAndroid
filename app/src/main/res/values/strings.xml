@@ -39,4 +39,5 @@
 
     <string name="choose_widget_dialog_title">Choose a widget</string>
 
+    <string name="failure_send_pictures">Unable to send pictures.</string>
 </resources>

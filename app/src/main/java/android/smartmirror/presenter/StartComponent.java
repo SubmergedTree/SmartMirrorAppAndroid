@@ -36,7 +36,10 @@ public class StartComponent implements IStartComponent, Connection.Observer {
     public void search() {
         iStartActivity.showProgressCircle();
         tryConnect();
-        new CountDownTimer(2000, 1000) {
+        if (Connection.use().isConnected()) {
+            return;
+        }
+     /*   new CountDownTimer(2000, 1000) {
 
             @Override
             public void onTick(long millisUntilFinished) {
@@ -47,7 +50,7 @@ public class StartComponent implements IStartComponent, Connection.Observer {
                 iStartActivity.hideProgressCircle();
             }
         }.start();
-
+*/
     }
 
     private void tryConnect() {

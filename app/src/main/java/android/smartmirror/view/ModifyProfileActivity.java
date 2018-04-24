@@ -14,7 +14,11 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.view.MenuItem;
 
-public class ModifyProfileActivity extends BaseActivity implements IModifyProfileActivity {
+public class ModifyProfileActivity extends BaseActivity {
+
+    private WidgetEditorFragment widgetEditorFragment;
+    private PictureFragment pictureFragment;
+    private User user;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -23,10 +27,10 @@ public class ModifyProfileActivity extends BaseActivity implements IModifyProfil
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.modify_layout:
-                    loadFragment(new WidgetEditorFragment());
+                    loadFragment(widgetEditorFragment);
                     return true;
                 case R.id.learning:
-                    loadFragment(new PictureFragment());
+                    loadFragment(pictureFragment);
                     return true;
             }
             return false;
@@ -37,12 +41,21 @@ public class ModifyProfileActivity extends BaseActivity implements IModifyProfil
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
-        User selectedUser = (User) intent.getSerializableExtra("UserExtra");
+        user = (User) intent.getSerializableExtra("user");
+
+        Bundle userBundle = new Bundle();
+        userBundle.putSerializable("user", user);
+        widgetEditorFragment = new WidgetEditorFragment();
+        widgetEditorFragment.setArguments(userBundle);
+        pictureFragment = new PictureFragment();
+        pictureFragment.setArguments(userBundle);
 
         setContentView(R.layout.activity_modify_profile);
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        loadFragment(new WidgetEditorFragment());
 
     }
 
@@ -51,5 +64,9 @@ public class ModifyProfileActivity extends BaseActivity implements IModifyProfil
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.content, fragment);
         fragmentTransaction.commit();
+    }
+
+    public User getUser() {
+        return user;
     }
 }
