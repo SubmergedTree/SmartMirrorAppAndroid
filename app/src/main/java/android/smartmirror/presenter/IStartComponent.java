@@ -15,5 +15,6 @@ public interface IStartComponent {
 
     void setBluetoothName(String name);
 
+    void search();
 
 }

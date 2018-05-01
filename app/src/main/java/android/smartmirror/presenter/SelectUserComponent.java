@@ -77,7 +77,7 @@ public class SelectUserComponent implements ISelectUserComponent, Connection.Dis
 
     @Override
     public void onDisconnect() {
-        Log.e("Component", "disconnect");
+        Log.e("SelectUserComponent", "disconnect");
         userActivity.startStartActivity();
     }
 

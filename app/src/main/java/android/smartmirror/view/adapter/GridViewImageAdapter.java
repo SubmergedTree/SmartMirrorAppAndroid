@@ -2,6 +2,7 @@ package android.smartmirror.view.adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Binder;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -24,12 +25,8 @@ public class GridViewImageAdapter extends BaseAdapter {
         bitmaps = new ArrayList<>();
     }
 
-    public void reset() {
-        bitmaps.clear();
-    }
-
-    public void addBitmap(Bitmap bitmap) {
-        bitmaps.add(bitmap);
+    public void setBitmap(List<Bitmap> bitmaps) {
+        this.bitmaps = bitmaps;
     }
 
     @Override

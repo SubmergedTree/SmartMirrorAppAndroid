@@ -13,13 +13,13 @@ import java.lang.ref.WeakReference;
  * Created by SubmergedTree a.k.a Jannik Seemann on 31.03.18.
  */
 
-public class NewUser implements Connection.Observer {
+public class NewUser extends BaseRequest {
     private INewUser callback;
     private int ref;
-    private Expire expire;
+    private Progress progress;
     private UserPOJO userPOJO;
 
-    private enum Expire{
+    private enum Progress {
         SENDNEWUSER,
         SENDJSON;
     }
@@ -29,37 +29,28 @@ public class NewUser implements Connection.Observer {
         this.userPOJO = userPOJO;
         ref = Connection.use().register(new WeakReference<Connection.Observer>(this));
         Connection.use().send("NEWUSER");
-        expire = Expire.SENDNEWUSER;
+        progress = Progress.SENDNEWUSER;
     }
-
-    @Override
-    public void requestEnableBluetooth() {}
-
-    @Override
-    public void noBluetoothSupported() {}
-
-    @Override
-    public void onConnected() {}
 
     @Override
     public void receive(String msg) {
         Log.e("NewUser", "NewUser");
         Log.e("NewUser", msg);
-        if (expire == Expire.SENDNEWUSER) {
+        if (progress == Progress.SENDNEWUSER) {
             if (msg.equals("OK")) {
                 Log.d("NewUser", "Receive OK1");
                 try {
                     String json = new ObjectMapper().writeValueAsString(userPOJO);
                     System.out.println(json);
                     Connection.use().send(json);
-                    expire = Expire.SENDJSON;
+                    progress = Progress.SENDJSON;
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }
             } else {
                 callback.result(false);
             }
-        } else if (expire == Expire.SENDJSON) {
+        } else if (progress == Progress.SENDJSON) {
             if (msg.equals("OK")) {
                 Log.d("NewUser", "Receive OK2");
                 callback.result(true);

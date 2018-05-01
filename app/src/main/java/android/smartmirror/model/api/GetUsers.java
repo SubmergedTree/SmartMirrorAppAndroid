@@ -16,7 +16,7 @@ import java.util.List;
  * Created by SubmergedTree a.k.a Jannik Seemann on 18.03.18.
  */
 
-public class GetUsers implements Connection.Observer {
+public class GetUsers extends BaseRequest {
     private IGetUsers callback;
     private int ref;
 
@@ -25,15 +25,6 @@ public class GetUsers implements Connection.Observer {
         ref = Connection.use().register(new WeakReference<Connection.Observer>(this));
         Connection.use().send("GETUSERS");
     }
-
-    @Override
-    public void requestEnableBluetooth() {}
-
-    @Override
-    public void noBluetoothSupported() {}
-
-    @Override
-    public void onConnected() {}
 
     @Override
     public void receive(String msg) {

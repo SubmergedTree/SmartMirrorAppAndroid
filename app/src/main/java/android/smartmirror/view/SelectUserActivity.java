@@ -59,14 +59,9 @@ public class SelectUserActivity extends BaseActivity implements ISelectUserActiv
 
     @Override
     public void setUserList(List<User> users) {
-        final ArrayAdapter adapter = new ArrayAdapter(this, R.layout.user_list,users.toArray());
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                userList.setAdapter(adapter);
-                listOnClick();
-            }
-        });
+        final ArrayAdapter adapter = new ArrayAdapter<>(this, R.layout.user_list,users.toArray());
+        userList.setAdapter(adapter);
+        listOnClick();
     }
 
     @Override
@@ -81,22 +76,16 @@ public class SelectUserActivity extends BaseActivity implements ISelectUserActiv
 
     @Override
     public void newUserFailure() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SelectUserActivity.this);
-                final TextView input = new TextView(SelectUserActivity.this);
-                LinearLayoutCompat.LayoutParams lp = new LinearLayoutCompat.LayoutParams(
-                        LinearLayoutCompat.LayoutParams.MATCH_PARENT,
-                        LinearLayoutCompat.LayoutParams.MATCH_PARENT);
-                input.setLayoutParams(lp);
-                input.setText(R.string.error_new_user);
-                dialogBuilder.setView(input);
-                AlertDialog alertDialog = dialogBuilder.create();
-                alertDialog.show();
-            }
-        });
-
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SelectUserActivity.this);
+        final TextView input = new TextView(SelectUserActivity.this);
+        LinearLayoutCompat.LayoutParams lp = new LinearLayoutCompat.LayoutParams(
+                LinearLayoutCompat.LayoutParams.MATCH_PARENT,
+                LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(lp);
+        input.setText(R.string.error_new_user);
+        dialogBuilder.setView(input);
+        AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.show();
     }
 
     private void listOnClick() {
@@ -117,21 +106,16 @@ public class SelectUserActivity extends BaseActivity implements ISelectUserActiv
     }
 
     private void deleteAlert(final int position) {
-        runOnUiThread(new Runnable() {
+        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(SelectUserActivity.this);
+        alertBuilder.setMessage(R.string.validate_delete);
+        alertBuilder.setNegativeButton(R.string.delete, new DialogInterface.OnClickListener(){
             @Override
-            public void run() {
-                AlertDialog.Builder alertBuilder = new AlertDialog.Builder(SelectUserActivity.this);
-                alertBuilder.setMessage(R.string.validate_delete);
-                alertBuilder.setNegativeButton(R.string.delete, new DialogInterface.OnClickListener(){
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        selectUserComponent.delete(position);
-                    }
-                });
-                AlertDialog alertDialog = alertBuilder.create();
-                alertDialog.show();
+            public void onClick(DialogInterface dialog, int which) {
+                selectUserComponent.delete(position);
             }
         });
+        AlertDialog alertDialog = alertBuilder.create();
+        alertDialog.show();
     }
 
     @Override

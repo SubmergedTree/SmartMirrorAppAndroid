@@ -2,6 +2,8 @@ package android.smartmirror.model.bluetooth;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 import android.smartmirror.model.bluetooth.exception.NoBluetoothSupportedException;
 import android.util.Log;
 
@@ -9,17 +11,12 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by SubmergedTree a.k.a Jannik Seemann on 17.03.18.
  */
 
-//Todo: we need a callback which is triggered by a server error.
-//Todo: we need a method to terminate client.
-// -> this method should be invoked when user presses in user select activity the back button.
-// that would probably be the nicest solution. But I think the client side code is robust enough to handel this case.
 //Todo: Rework this class
 public class Connection {
     private static final Connection ourInstance = new Connection();
@@ -33,18 +30,15 @@ public class Connection {
 
     private Map<Integer,WeakReference<Observer>> registered;
     private Map<Integer,WeakReference<DisconnectObserver>> disconnectRegistered;
-    private Timer connectTimer;
-    private boolean isTimerRunning;
+
     private int counter;
 
     private Connection() {
         this.bluetoothClient = new BluetoothClient();
         this.bluetoothServerName = new BluetoothServerName();
-        this.registered = new HashMap();
+        this.registered = new HashMap<>();
         this.disconnectRegistered = new HashMap<>();
-      // this.connectTimer = new Timer();
         this.counter = 0;
-        this.isTimerRunning = false;
     }
 
     public int register(WeakReference<Observer> o) {
@@ -53,12 +47,8 @@ public class Connection {
     }
 
     public int registerDisconnect(WeakReference<DisconnectObserver> o) {
-        disconnectRegistered.put(1,o);
-        return 0;
-    }
-
-    public void removeDisconnect(int code) {
-        //TODO
+        disconnectRegistered.put(++counter,o);
+        return counter;
     }
 
     public void remove(int code) {
@@ -79,185 +69,99 @@ public class Connection {
 
     public void setUpBluetooth() {
         try {
-            if(!bluetoothClient.activateBluetooth()) {
-                this.requestEnableBluetooth();
-                bluetoothClient.activateBluetooth();
-            }
+           // if(!bluetoothClient.activateBluetooth()) {
+             //   invokeCallbacks(Callbacks.REQUEST_ENABLE_BLUETOOTH);
+             //   bluetoothClient.activateBluetooth();
+           // }
+            bluetoothClient.activateBluetooth();
         } catch (NoBluetoothSupportedException e) {
-            this.noBluetoothSupported();
+            invokeCallbacks(Callbacks.NO_BLUETOOTH_SUPPORTED);
         }
     }
 
-    public void connectToMirror() {
+    public void tryConnectToMirror() {
+        Log.e("Coonection", "tryConnectToMirror");
         final String serverName = bluetoothServerName.getName();
-        connectTimer = new Timer();
-
-        if (isConnected()) {
-            this.cancel();
-        }
-
-        if(isTimerRunning) {
-            stopSearchMirror();
-        }
-
-        if(this.connect(serverName)) {
-            return;
-        }
-
-        try {
-            connectTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    Log.e("search", "is searching");
-                    isTimerRunning = true;
-                    connect(serverName);
-                }
-            }, 1, 1000 * 10);
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-  /*  public void connectToMirror() {
-        new ConnectTask().execute();
-    }
-
-    private class ConnectTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            final String serverName = bluetoothServerName.getName();
-            connectTimer = new Timer();
-
-            if (isConnected()) {
-                bluetoothClient.cancel();
-            }
-
-   //     if(isTimerRunning) {
-   //         stopSearchMirror();
-   //     }
-
-            if(connect(serverName)) {
-                return null;
-            }
-
-            try {
-                connectTimer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        Log.e("search", "is searching");
-                        isTimerRunning = true;
-                        connect(serverName);
-                    }
-                }, 1, 1000 * 10);
-            } catch (IllegalStateException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-    }*/
-
-    synchronized private boolean connect(String serverName) {
-        if(bluetoothClient.searchMirror(serverName)) {
-            bluetoothClient.start();
-            isTimerRunning = false;
-            connectTimer.cancel();
-            connectTimer.purge();
-            Log.e("Is connected" ,String.valueOf(isConnected()));
-            onConnected();
-            return true;
-        }
-        return false;
-    }
-
-    public void stopSearchMirror() {
-        isTimerRunning = false;
-        connectTimer.cancel();
-        connectTimer.purge();
-    }
-
-    public void send(String msg) {
-        if(!this.isConnected()) {
-            connectToMirror();
-        }
-        bluetoothClient.send(msg);
+        bluetoothClient.searchDevice(serverName);
     }
 
     public boolean isConnected() {
         return bluetoothClient.isConnected();
     }
 
-    void receive(String msg) {
-        //System.out.println(msg);
+    public void send(String msg) {
+       if(!this.isConnected()) {
+            Log.e("Connection", "is not connected while trying to send");
+           invokeDisconnectCallback();
+           return;
+        }
+        bluetoothClient.send(msg);
+    }
+
+    void invokeCallbacks(Callbacks callbacks) {
+        invokeCallbacks(callbacks, "");
+    }
+
+    @SuppressWarnings("unchecked")
+    void invokeCallbacks(final Callbacks callbacks,final String msg) {
         Iterator it = registered.entrySet().iterator();
-        while(it.hasNext()) {
-            final Map.Entry entry = (Map.Entry)it.next();
-            if(entry.getValue() == null) {
+            while(it.hasNext()) {
+            final Map.Entry entry = (Map.Entry) it.next();
+            if (entry.getValue() == null) {
                 it.remove();
             } else {
-                ((WeakReference<Observer>)entry.getValue()).get().receive(msg);
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        System.out.println("received" + callbacks.name());
+                        switch (callbacks) {
+                            case RECEIVE:
+                                System.out.println("received" + msg);
+                                ((WeakReference<Observer>) entry.getValue()).get().receive(msg);
+                                break;
+                            case ON_CONNECTED:
+                                ((WeakReference<Observer>) entry.getValue()).get().onConnected();
+                                break;
+                            case NO_BLUETOOTH_SUPPORTED:
+                                ((WeakReference<Observer>) entry.getValue()).get().noBluetoothSupported();
+                                break;
+                            case REQUEST_ENABLE_BLUETOOTH:
+                                //             ((WeakReference<Observer>) entry.getValue()).get().requestEnableBluetooth();
+                                break;
+                        }
+                    }
+                });
             }
         }
     }
 
-    private void noBluetoothSupported() {
-        Iterator it = registered.entrySet().iterator();
-        while(it.hasNext()) {
-            Map.Entry entry = (Map.Entry)it.next();
-            if(entry.getValue() == null) {
-                it.remove();
-            } else {
-                ((WeakReference<Observer>)entry.getValue()).get().noBluetoothSupported();
-            }
-        }
-    }
-
-    private void requestEnableBluetooth() {
-        Log.i("connection", "request bluetooth");
-        Iterator it = registered.entrySet().iterator();
-        while(it.hasNext()) {
-            Map.Entry entry = (Map.Entry)it.next();
-            if(entry.getValue() == null) {
-                it.remove();
-            } else {
-                ((WeakReference<Observer>)entry.getValue()).get().requestEnableBluetooth();
-            }
-        }
-    }
-
-    private void onConnected() {
-        Iterator it = registered.entrySet().iterator();
-        while(it.hasNext()) {
-            Map.Entry entry = (Map.Entry)it.next();
-            if(entry.getValue() == null) {
-                it.remove();
-            } else {
-                ((WeakReference<Observer>)entry.getValue()).get().onConnected();
-            }
-        }
-    }
-
-    void onConnectionCanceled() {
+    @SuppressWarnings("unchecked")
+     void invokeDisconnectCallback() {
         Iterator it = disconnectRegistered.entrySet().iterator();
         while(it.hasNext()) {
-            Map.Entry entry = (Map.Entry)it.next();
-            if(entry.getValue() == null) {
+            final Map.Entry entry = (Map.Entry) it.next();
+            if (entry.getValue() == null) {
                 it.remove();
             } else {
-                ((WeakReference<DisconnectObserver>)entry.getValue()).get().onDisconnect();
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((WeakReference<DisconnectObserver>) entry.getValue()).get().onDisconnect();
+                    }
+                });
             }
         }
     }
 
     public void cancel() {
         Log.e("Connection: ","cancel in Connection");
-        //remove references
+        registered.clear();
+        disconnectRegistered.clear();
         bluetoothClient.cancel();
     }
 
     public interface Observer {
+        @Deprecated
         void requestEnableBluetooth();
         void noBluetoothSupported();
         void onConnected();
@@ -266,5 +170,13 @@ public class Connection {
 
     public interface DisconnectObserver {
         void onDisconnect();
+    }
+
+     enum Callbacks {
+        @Deprecated
+        REQUEST_ENABLE_BLUETOOTH,
+        NO_BLUETOOTH_SUPPORTED,
+        ON_CONNECTED,
+        RECEIVE
     }
 }

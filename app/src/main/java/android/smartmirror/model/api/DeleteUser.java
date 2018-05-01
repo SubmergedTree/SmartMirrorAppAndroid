@@ -12,7 +12,7 @@ import java.lang.ref.WeakReference;
  * Created by SubmergedTree a.k.a Jannik Seemann on 21.03.18.
  */
 
-public class DeleteUser implements Connection.Observer {
+public class DeleteUser extends BaseRequest {
     private IDeleteUser callback;
     private int ref;
     private boolean firstOK;
@@ -26,15 +26,6 @@ public class DeleteUser implements Connection.Observer {
         deleteUserPojo = new DeleteUserPojo();
         deleteUserPojo.setUsername(username);
     }
-
-    @Override
-    public void requestEnableBluetooth() {}
-
-    @Override
-    public void noBluetoothSupported() {}
-
-    @Override
-    public void onConnected() {}
 
     @Override
     public void receive(String msg) {

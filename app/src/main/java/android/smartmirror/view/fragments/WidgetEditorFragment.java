@@ -29,6 +29,10 @@ public class WidgetEditorFragment extends Fragment implements IWidgetEditorFragm
 
     private IWidgetEditorComponent widgetEditorComponent;
 
+    public WidgetEditorFragment() {
+        widgetEditorComponent = new WidgetEditorComponent(this);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -37,7 +41,6 @@ public class WidgetEditorFragment extends Fragment implements IWidgetEditorFragm
         rightTop = (ImageButton)view.findViewById(R.id.rightTop);
         leftDown = (ImageButton)view.findViewById(R.id.leftDown);
         rightDown = (ImageButton)view.findViewById(R.id.rightDown);
-        widgetEditorComponent = new WidgetEditorComponent(this);
         buttonPressed();
         return view;
     }
